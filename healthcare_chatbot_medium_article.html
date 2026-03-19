@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Building a Healthcare Chatbot with Python & ML — Medium Article</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;1,8..60,300;1,8..60,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #1a1a1a;
+    --ink-mid: #444;
+    --ink-soft: #717171;
+    --ink-faint: #aaa;
+    --paper: #faf9f7;
+    --accent: #1a7a4a;
+    --accent-light: #e8f5ee;
+    --accent-warm: #d4520a;
+    --code-bg: #f3f4f2;
+    --border: #e5e3df;
+    --max: 720px;
+  }
+
+  html { font-size: 18px; background: var(--paper); color: var(--ink); }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    line-height: 1.8;
+    padding: 0 1.5rem;
+    max-width: var(--max);
+    margin: 0 auto;
+  }
+
+  /* ---- Header ---- */
+  .header {
+    padding: 4rem 0 2.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2.5rem;
+  }
+  .tag-row {
+    display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.2rem;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .65rem; letter-spacing: .08em; text-transform: uppercase;
+    background: var(--accent-light); color: var(--accent);
+    padding: .25em .7em; border-radius: 2px; border: 1px solid #b8dfc9;
+  }
+  h1 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 2.8rem);
+    line-height: 1.2; font-weight: 700;
+    color: var(--ink); margin-bottom: 1rem;
+  }
+  .subtitle {
+    font-size: 1.1rem; color: var(--ink-mid);
+    font-style: italic; font-weight: 300;
+    line-height: 1.6; margin-bottom: 1.5rem;
+  }
+  .meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; color: var(--ink-faint);
+    letter-spacing: .06em; text-transform: uppercase;
+  }
+  .meta span { color: var(--ink-soft); }
+
+  /* ---- Content ---- */
+  h2 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.6rem; font-weight: 700;
+    color: var(--ink); margin: 3rem 0 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid var(--border);
+  }
+  h3 {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 1.2rem; font-weight: 400; font-style: italic;
+    color: var(--ink-mid); margin: 2rem 0 .6rem;
+  }
+  p { margin-bottom: 1.3rem; }
+  p:last-child { margin-bottom: 0; }
+
+  strong { font-weight: 500; color: var(--ink); }
+  em { font-style: italic; color: var(--ink-mid); }
+
+  a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+  /* ---- Pull quote ---- */
+  blockquote {
+    margin: 2.5rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 4px solid var(--accent);
+    background: var(--accent-light);
+    border-radius: 0 6px 6px 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem; font-style: italic;
+    color: var(--ink-mid); line-height: 1.6;
+  }
+
+  /* ---- Code ---- */
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .78rem; background: var(--code-bg);
+    color: #c0392b; padding: .15em .4em; border-radius: 3px;
+  }
+  pre {
+    background: #1e2024; color: #d4d4d4;
+    border-radius: 8px; overflow-x: auto;
+    padding: 1.5rem; margin: 1.8rem 0;
+    border: 1px solid #333;
+    box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  }
+  pre code {
+    font-size: .78rem; background: none; color: inherit;
+    padding: 0; border-radius: 0;
+  }
+  .kw  { color: #569cd6; }
+  .fn  { color: #dcdcaa; }
+  .st  { color: #ce9178; }
+  .cm  { color: #6a9955; font-style: italic; }
+  .nb  { color: #4ec9b0; }
+  .op  { color: #d4d4d4; }
+  .nm  { color: #b5cea8; }
+
+  /* ---- Architecture diagram ---- */
+  .arch {
+    margin: 2rem 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .arch-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ink-soft); padding: .6rem 1rem;
+    background: var(--code-bg); border-bottom: 1px solid var(--border);
+  }
+  .arch-body {
+    padding: 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .75rem; line-height: 2;
+    color: var(--ink-mid); white-space: pre;
+  }
+
+  /* ---- Callout boxes ---- */
+  .callout {
+    margin: 2rem 0; padding: 1.2rem 1.5rem;
+    border-radius: 6px; border: 1px solid;
+  }
+  .callout.info { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+  .callout.warn { background: #fffbeb; border-color: #fde68a; color: #92400e; }
+  .callout.tip  { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+  .callout-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .07em; margin-bottom: .5rem; display: block;
+  }
+  .callout p { margin-bottom: 0; font-size: .92rem; line-height: 1.6; }
+
+  /* ---- Feature grid ---- */
+  .feature-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem; margin: 2rem 0;
+  }
+  .feature-card {
+    background: white; border: 1px solid var(--border);
+    border-radius: 8px; padding: 1.2rem;
+  }
+  .feature-card .icon { font-size: 1.5rem; margin-bottom: .5rem; }
+  .feature-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: .95rem; font-weight: 700; margin-bottom: .3rem;
+  }
+  .feature-card p { font-size: .82rem; color: var(--ink-soft); margin: 0; line-height: 1.5; }
+
+  /* ---- Step tracker ---- */
+  .steps { margin: 2rem 0; }
+  .step {
+    display: flex; gap: 1rem; margin-bottom: 1.5rem; align-items: flex-start;
+  }
+  .step-num {
+    flex-shrink: 0;
+    width: 2rem; height: 2rem;
+    background: var(--accent); color: white;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: .75rem; font-weight: 600;
+    margin-top: .15rem;
+  }
+  .step-body h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem; font-weight: 700; margin-bottom: .3rem;
+  }
+  .step-body p { font-size: .9rem; color: var(--ink-mid); margin: 0; line-height: 1.6; }
+
+  /* ---- Table ---- */
+  table {
+    width: 100%; border-collapse: collapse;
+    margin: 2rem 0; font-size: .85rem;
+  }
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; text-transform: uppercase; letter-spacing: .06em;
+    background: var(--code-bg); color: var(--ink-soft);
+    padding: .8rem 1rem; text-align: left;
+    border-bottom: 2px solid var(--border);
+  }
+  td {
+    padding: .8rem 1rem; border-bottom: 1px solid var(--border);
+    color: var(--ink-mid); vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--accent-light); }
+
+  /* ---- Horizontal rule ---- */
+  .divider {
+    margin: 3rem 0;
+    display: flex; align-items: center; gap: 1rem;
+    color: var(--ink-faint); font-family: 'JetBrains Mono', monospace;
+    font-size: .7rem; letter-spacing: .1em;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ---- Footer ---- */
+  .footer {
+    margin: 4rem 0 3rem;
+    padding-top: 2rem; border-top: 1px solid var(--border);
+    font-size: .82rem; color: var(--ink-soft);
+  }
+  .footer .clap-hint {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .72rem; color: var(--ink-faint);
+    margin-top: 1rem;
+  }
+  .tag-footer {
+    display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem;
+  }
+  .tag-footer span {
+    background: var(--code-bg); color: var(--ink-soft);
+    padding: .25em .7em; border-radius: 20px;
+    font-size: .75rem; border: 1px solid var(--border);
+  }
+
+  @media print {
+    body { max-width: none; font-size: 12pt; }
+    .header { padding-top: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="tag-row">
+    <span class="tag">Python</span>
+    <span class="tag">Machine Learning</span>
+    <span class="tag">Healthcare AI</span>
+    <span class="tag">NLP</span>
+    <span class="tag">Random Forest</span>
+  </div>
+  <h1>Building an Intelligent Healthcare Chatbot with Python &amp; Machine Learning</h1>
+  <p class="subtitle">A comprehensive walkthrough of how to combine a Random Forest classifier, NLP symptom extraction, and conversational UI to build a disease-prediction assistant from scratch.</p>
+  <div class="meta">
+    <span>~ 12 min read</span> &nbsp;·&nbsp;
+    <span>Python · Scikit-learn · Pandas · NLP</span>
+  </div>
+</div>
+
+
+<!-- INTRODUCTION -->
+<p>
+  Imagine having a knowledgeable, always-available health assistant in your pocket — one that listens to how you describe your symptoms in plain language, asks intelligent follow-up questions, and tells you what condition you might be dealing with along with specific precautions to take. That's exactly what this project builds.
+</p>
+<p>
+  In this article, we'll do a deep, line-by-line technical walkthrough of a Python-based healthcare chatbot that uses a <strong>Random Forest classifier</strong> trained on real symptom-disease data, a custom <strong>NLP symptom extractor</strong> with fuzzy matching, and a guided conversational flow that progressively refines its diagnosis. Whether you're a beginner looking to understand applied ML or an intermediate developer exploring healthcare AI, this is for you.
+</p>
+
+<blockquote>
+  "The best AI is not one that replaces the doctor — it's the one that gets you to the doctor faster, better prepared, and less afraid."
+</blockquote>
+
+<div class="callout warn">
+  <span class="callout-title">⚠️ Medical Disclaimer</span>
+  <p>This project is built for educational and demonstrative purposes only. It is <strong>not</strong> a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider for any health concerns.</p>
+</div>
+
+
+<!-- SECTION 1 -->
+<h2>1. Project Architecture at a Glance</h2>
+
+<p>
+  Before we jump into code, let's understand the big picture. The chatbot is composed of five distinct layers that work together:
+</p>
+
+<div class="arch">
+  <div class="arch-title">System Architecture</div>
+  <div class="arch-body">
+  User Input (plain text)
+        │
+        ▼
+  ┌─────────────────────┐
+  │  NLP Symptom Layer  │  ← synonyms + exact match + fuzzy match
+  └────────┬────────────┘
+           │ cleaned symptom list
+           ▼
+  ┌─────────────────────┐
+  │  Feature Vector     │  ← one-hot encoded (132 symptoms)
+  └────────┬────────────┘
+           │
+           ▼
+  ┌─────────────────────┐
+  │  Random Forest      │  ← 300 trees, trained on Training.csv
+  │  Classifier         │
+  └────────┬────────────┘
+           │ disease + confidence
+           ▼
+  ┌─────────────────────┐
+  │  Guided Q&amp;A Engine  │  ← asks about disease-specific symptoms
+  └────────┬────────────┘
+           │ enriched symptom list
+           ▼
+  ┌─────────────────────┐
+  │  Output Layer       │  ← diagnosis + description + precautions
+  └─────────────────────┘
+  </div>
+</div>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <div class="icon">🗄️</div>
+    <h4>Data Layer</h4>
+    <p>Training.csv &amp; Testing.csv with 132 binary symptom columns and a prognosis label.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🧠</div>
+    <h4>ML Model</h4>
+    <p>Random Forest with 300 estimators, label-encoded targets, and probability output.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">💬</div>
+    <h4>NLP Engine</h4>
+    <p>3-pass extraction: synonym map → exact match → difflib fuzzy matching.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">📋</div>
+    <h4>Knowledge Base</h4>
+    <p>Three CSVs: symptom descriptions, severity scores, and precaution lists.</p>
+  </div>
+</div>
+
+
+<!-- SECTION 2 -->
+<h2>2. Setting Up: Imports &amp; Dependencies</h2>
+
+<p>
+  The project is intentionally lean — no TensorFlow, no HuggingFace. Every library used is a well-established, lightweight standard in the Python data science world:
+</p>
+
+<pre><code><span class="cm"># Core data handling</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> csv
+
+<span class="cm"># ML pipeline</span>
+<span class="kw">from</span> sklearn <span class="kw">import</span> preprocessing
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+<span class="cm"># NLP utilities</span>
+<span class="kw">import</span> re
+<span class="kw">from</span> difflib <span class="kw">import</span> get_close_matches
+
+<span class="cm"># Misc</span>
+<span class="kw">import</span> random
+<span class="kw">import</span> warnings
+warnings.<span class="fn">filterwarnings</span>(<span class="st">"ignore"</span>, category=DeprecationWarning)</code></pre>
+
+<p>
+  Notice <code>difflib.get_close_matches</code> — this Python standard library gem is the secret weapon for handling user typos. We'll explore it in depth in Section 5.
+</p>
+
+
+<!-- SECTION 3 -->
+<h2>3. Data Loading &amp; Cleaning</h2>
+
+<p>
+  The dataset is structured as a <strong>binary feature matrix</strong>: each row represents a patient scenario, each column represents a symptom (0 or 1), and the final column is the disease label (<code>prognosis</code>).
+</p>
+
+<pre><code>training = pd.<span class="fn">read_csv</span>(<span class="st">"Data/Training.csv"</span>)
+testing  = pd.<span class="fn">read_csv</span>(<span class="st">"Data/Testing.csv"</span>)
+
+<span class="cm"># Strip trailing digits from duplicate column names</span>
+training.columns = training.columns.str.<span class="fn">replace</span>(<span class="st">r"\d+$"</span>, <span class="st">""</span>, regex=<span class="nb">True</span>)
+testing.columns  = testing.columns.str.<span class="fn">replace</span>(<span class="st">r"\.\d+$"</span>, <span class="st">""</span>, regex=<span class="nb">True</span>)
+
+<span class="cm"># Remove any duplicate columns that remain</span>
+training = training.loc[:, ~training.columns.<span class="fn">duplicated</span>()]
+testing  = testing.loc[:,  ~testing.columns.<span class="fn">duplicated</span>()]</code></pre>
+
+<p>
+  A subtle but critical cleaning step: CSV exports sometimes append numeric suffixes to duplicated column names (<code>symptom</code>, <code>symptom.1</code>, <code>symptom2</code>). The regex <code>r"\d+$"</code> strips those trailing digits, and then <code>~duplicated()</code> keeps only the first occurrence of any column name.
+</p>
+
+<h3>Feature-Target Split</h3>
+
+<pre><code>cols = training.columns[:-<span class="nm">1</span>]   <span class="cm"># all columns except 'prognosis'</span>
+X    = training[cols]
+y    = training[<span class="st">"prognosis"</span>]
+
+<span class="cm"># Encode string labels to integers</span>
+le = preprocessing.<span class="nb">LabelEncoder</span>()
+y  = le.<span class="fn">fit_transform</span>(y)</code></pre>
+
+<div class="callout info">
+  <span class="callout-title">💡 Why LabelEncoder?</span>
+  <p>Random Forest works with integer targets, not string labels. <code>LabelEncoder</code> maps each unique disease name to a number (alphabetically). We store the encoder (<code>le</code>) so we can <em>inverse transform</em> predictions back to disease names later.</p>
+</div>
+
+
+<!-- SECTION 4 -->
+<h2>4. Training the Random Forest Model</h2>
+
+<p>
+  Random Forest is an excellent choice for this problem. Here's why it outperforms simpler alternatives:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Property</th><th>Decision Tree</th><th>Logistic Regression</th><th>Random Forest ✓</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Handles high-dimensional binary features</td><td>⚠️ Prone to overfit</td><td>✅ Works well</td><td>✅ Excellent</td></tr>
+    <tr><td>Non-linear relationships</td><td>✅ Yes</td><td>❌ No</td><td>✅ Yes</td></tr>
+    <tr><td>Confidence/probability output</td><td>❌ Unreliable</td><td>✅ Yes</td><td>✅ Calibrated</td></tr>
+    <tr><td>Robustness to noise</td><td>❌ Low</td><td>⚠️ Medium</td><td>✅ High</td></tr>
+    <tr><td>Interpretability</td><td>✅ High</td><td>✅ High</td><td>⚠️ Medium</td></tr>
+  </tbody>
+</table>
+
+<pre><code>X_train, X_test, y_train, y_test = <span class="fn">train_test_split</span>(
+    X, y, test_size=<span class="nm">0.33</span>, random_state=<span class="nm">42</span>
+)
+
+model = <span class="nb">RandomForestClassifier</span>(n_estimators=<span class="nm">300</span>, random_state=<span class="nm">42</span>)
+model.<span class="fn">fit</span>(X_train, y_train)</code></pre>
+
+<p>
+  <strong>Why 300 trees?</strong> More trees generally improve stability and reduce variance at the cost of training time. For a dataset this size, 300 is a practical sweet spot — fast enough to train in seconds, robust enough to generalize. You can experiment with <code>n_estimators=100</code> or <code>500</code> and compare using <code>model.score(X_test, y_test)</code>.
+</p>
+
+
+<!-- SECTION 5 -->
+<h2>5. The NLP Symptom Extractor — The Hardest Part</h2>
+
+<p>
+  This is where the project gets genuinely interesting. Real users don't type <code>stomach_pain</code> — they type <em>"my tummy hurts"</em> or <em>"I have a belly ache"</em>. The extractor bridges that gap using three cascading strategies:
+</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>Synonym Mapping</h4>
+      <p>A hand-curated dictionary maps common lay terms to standardized symptom names. "Loose motion" → <code>diarrhea</code>. "Feaver" → <code>fever</code>. "Shortness of breath" → <code>breathlessness</code>. This handles the most common colloquialisms.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>Exact Substring Match</h4>
+      <p>After synonym replacement, the cleaned text is scanned for exact occurrences of known symptom names (underscores replaced with spaces). This catches any symptom the user happened to phrase correctly.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>Fuzzy Matching via difflib</h4>
+      <p>Each word in the user's input is compared to every known symptom using Levenshtein-like distance. A cutoff of <code>0.8</code> means the word must be at least 80% similar. This catches typos like "headace" → <code>headache</code>.</p>
+    </div>
+  </div>
+</div>
+
+<pre><code><span class="kw">def</span> <span class="fn">extract_symptoms</span>(user_input, all_symptoms):
+    extracted = []
+    text = user_input.<span class="fn">lower</span>().<span class="fn">replace</span>(<span class="st">"-"</span>, <span class="st">" "</span>)
+
+    <span class="cm"># Pass 1: Synonym replacement</span>
+    <span class="kw">for</span> phrase, mapped <span class="kw">in</span> symptom_synonyms.items():
+        <span class="kw">if</span> phrase <span class="kw">in</span> text:
+            extracted.<span class="fn">append</span>(mapped)
+
+    <span class="cm"># Pass 2: Exact match on standardized names</span>
+    <span class="kw">for</span> symptom <span class="kw">in</span> all_symptoms:
+        <span class="kw">if</span> symptom.<span class="fn">replace</span>(<span class="st">"_"</span>, <span class="st">" "</span>) <span class="kw">in</span> text:
+            extracted.<span class="fn">append</span>(symptom)
+
+    <span class="cm"># Pass 3: Fuzzy match for typo tolerance</span>
+    words = re.<span class="fn">findall</span>(<span class="st">r"\w+"</span>, text)
+    <span class="kw">for</span> word <span class="kw">in</span> words:
+        close = <span class="fn">get_close_matches</span>(
+            word,
+            [s.<span class="fn">replace</span>(<span class="st">"_"</span>, <span class="st">" "</span>) <span class="kw">for</span> s <span class="kw">in</span> all_symptoms],
+            n=<span class="nm">1</span>, cutoff=<span class="nm">0.8</span>
+        )
+        <span class="kw">if</span> close:
+            <span class="kw">for</span> sym <span class="kw">in</span> all_symptoms:
+                <span class="kw">if</span> sym.<span class="fn">replace</span>(<span class="st">"_"</span>, <span class="st">" "</span>) == close[<span class="nm">0</span>]:
+                    extracted.<span class="fn">append</span>(sym)
+
+    <span class="kw">return</span> <span class="fn">list</span>(<span class="fn">set</span>(extracted))  <span class="cm"># deduplicate</span></code></pre>
+
+<div class="callout tip">
+  <span class="callout-title">🔬 Under the Hood: difflib.get_close_matches</span>
+  <p>Python's <code>difflib</code> uses the <strong>Ratcliff/Obershelp algorithm</strong> — it finds the longest common substring recursively and computes a similarity ratio. It's fast, requires no installation, and works surprisingly well for symptom-style short words.</p>
+</div>
+
+
+<!-- SECTION 6 -->
+<h2>6. Encoding Symptoms as Feature Vectors</h2>
+
+<p>
+  The model was trained on a 132-dimensional binary feature space. For inference, we need to convert any list of symptom strings back into that exact same vector format:
+</p>
+
+<pre><code><span class="cm"># Build a lookup: symptom name → column index</span>
+symptoms_dict = {symptom: idx <span class="kw">for</span> idx, symptom <span class="kw">in</span> <span class="fn">enumerate</span>(X)}
+
+<span class="kw">def</span> <span class="fn">predict_disease</span>(symptoms_list):
+    <span class="cm"># Start with all zeros</span>
+    input_vector = np.<span class="fn">zeros</span>(<span class="fn">len</span>(symptoms_dict))
+
+    <span class="cm"># Flip the relevant indices to 1</span>
+    <span class="kw">for</span> symptom <span class="kw">in</span> symptoms_list:
+        <span class="kw">if</span> symptom <span class="kw">in</span> symptoms_dict:
+            input_vector[symptoms_dict[symptom]] = <span class="nm">1</span>
+
+    <span class="cm"># Get probability distribution across all diseases</span>
+    pred_proba  = model.<span class="fn">predict_proba</span>([input_vector])[<span class="nm">0</span>]
+    pred_class  = np.<span class="fn">argmax</span>(pred_proba)
+    disease     = le.<span class="fn">inverse_transform</span>([pred_class])[<span class="nm">0</span>]
+    confidence  = <span class="fn">round</span>(pred_proba[pred_class] * <span class="nm">100</span>, <span class="nm">2</span>)
+
+    <span class="kw">return</span> disease, confidence, pred_proba</code></pre>
+
+<p>
+  Notice we use <code>predict_proba</code> instead of <code>predict</code>. This gives us a <strong>probability distribution</strong> over all 41 disease classes, not just the winning prediction. The confidence score (e.g., <em>"87.3% confident"</em>) comes from the highest probability in that distribution.
+</p>
+
+
+<!-- SECTION 7 -->
+<h2>7. The Knowledge Base: Three Supporting CSVs</h2>
+
+<p>
+  Predicting a disease name alone is not enough — users need context. Three lightweight CSV files power the chatbot's knowledge layer:
+</p>
+
+<table>
+  <thead>
+    <tr><th>File</th><th>Contents</th><th>Used For</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><code>symptom_Description.csv</code></td><td>Disease name → paragraph description</td><td>Explaining the diagnosed condition</td></tr>
+    <tr><td><code>symptom_severity.csv</code></td><td>Symptom name → severity score (integer)</td><td>Assessing overall condition seriousness</td></tr>
+    <tr><td><code>symptom_precaution.csv</code></td><td>Disease → 4 precaution steps</td><td>Actionable advice for the user</td></tr>
+  </tbody>
+</table>
+
+<pre><code><span class="kw">def</span> <span class="fn">getSeverityDict</span>():
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="st">'MasterData/symptom_severity.csv'</span>) <span class="kw">as</span> csv_file:
+        <span class="kw">for</span> row <span class="kw">in</span> csv.<span class="fn">reader</span>(csv_file):
+            <span class="kw">try</span>:
+                severityDictionary[row[<span class="nm">0</span>]] = <span class="fn">int</span>(row[<span class="nm">1</span>])
+            <span class="kw">except</span>:
+                <span class="kw">pass</span>  <span class="cm"># silently skip malformed rows</span></code></pre>
+
+<p>
+  The bare <code>except: pass</code> is a pragmatic choice — CSV files from the wild often have blank trailing rows or header rows that would crash on <code>int()</code> conversion. In production you'd want to log these silently skipped rows.
+</p>
+
+
+<!-- SECTION 8 -->
+<h2>8. The Conversational Loop — Putting It All Together</h2>
+
+<p>
+  The <code>chatbot()</code> function orchestrates the entire user experience. It follows a deliberate three-phase conversation design:
+</p>
+
+<div class="steps">
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <h4>Context Gathering</h4>
+      <p>Collects name, age, gender, symptom description, duration, severity scale (1–10), pre-existing conditions, lifestyle factors, and family history. This data isn't used by the ML model directly, but builds clinical context and empathy.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <h4>Initial Prediction &amp; Guided Questions</h4>
+      <p>After the first NLP extraction, a preliminary prediction is made. The chatbot then identifies the top 8 symptoms <em>associated with that predicted disease</em> that the user hasn't mentioned yet, and asks yes/no questions to confirm or add them.</p>
+    </div>
+  </div>
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <h4>Final Diagnosis Output</h4>
+      <p>With the enriched symptom list, a final prediction is made and presented with: disease name, confidence percentage, descriptive paragraph, and 4 actionable precautions.</p>
+    </div>
+  </div>
+</div>
+
+<pre><code><span class="cm"># Pull disease-specific symptoms from training data</span>
+disease_symptoms = <span class="fn">list</span>(
+    training[training[<span class="st">'prognosis'</span>] == disease]
+    .iloc[<span class="nm">0</span>][:-<span class="nm">1</span>].index[
+        training[training[<span class="st">'prognosis'</span>] == disease]
+        .iloc[<span class="nm">0</span>][:-<span class="nm">1</span>] == <span class="nm">1</span>
+    ]
+)
+
+<span class="cm"># Ask about at most 8 symptoms not yet confirmed</span>
+asked = <span class="nm">0</span>
+<span class="kw">for</span> sym <span class="kw">in</span> disease_symptoms:
+    <span class="kw">if</span> sym <span class="kw">not in</span> symptoms_list <span class="kw">and</span> asked &lt; <span class="nm">8</span>:
+        ans = <span class="fn">input</span>(<span class="st">f"👉 Do you also have {sym.replace('_',' ')}? (yes/no): "</span>)
+        <span class="kw">if</span> ans == <span class="st">"yes"</span>:
+            symptoms_list.<span class="fn">append</span>(sym)
+        asked += <span class="nm">1</span></code></pre>
+
+<p>
+  This guided Q&amp;A approach is powerful. It simulates what a doctor does — after a preliminary hypothesis, they probe specifically for confirming symptoms. Each "yes" strengthens the model's confidence in the initial prediction, or in rare cases, could shift it entirely to a different disease.
+</p>
+
+
+<!-- SECTION 9 -->
+<h2>9. Potential Improvements &amp; Next Steps</h2>
+
+<p>
+  This is a solid foundation, but production-ready healthcare AI demands more. Here are the most impactful extensions you could build:
+</p>
+
+<table>
+  <thead>
+    <tr><th>Area</th><th>Current State</th><th>Improvement</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>NLP</td>
+      <td>Rule-based synonym + fuzzy match</td>
+      <td>Replace with spaCy NER or a fine-tuned BioBERT model for clinical entity extraction</td>
+    </tr>
+    <tr>
+      <td>Interface</td>
+      <td>Command-line <code>input()</code></td>
+      <td>FastAPI backend + React frontend, or a Telegram/WhatsApp bot integration</td>
+    </tr>
+    <tr>
+      <td>Differential Diagnosis</td>
+      <td>Top-1 prediction only</td>
+      <td>Show top-3 diseases with probabilities to represent uncertainty honestly</td>
+    </tr>
+    <tr>
+      <td>Severity Assessment</td>
+      <td>Collected but unused</td>
+      <td>Use the severity dictionary to compute a total severity score and flag emergencies</td>
+    </tr>
+    <tr>
+      <td>Model</td>
+      <td>Static trained model</td>
+      <td>Add continuous retraining pipeline with new data; evaluate with cross-validation</td>
+    </tr>
+    <tr>
+      <td>Safety</td>
+      <td>No guardrails</td>
+      <td>Add emergency keyword detection ("chest pain + left arm") to immediately redirect to emergency services</td>
+    </tr>
+  </tbody>
+</table>
+
+
+<!-- SECTION 10 -->
+<h2>10. Key Takeaways</h2>
+
+<p>
+  This project packs a surprising number of real-world engineering lessons into a relatively compact codebase. Let's summarize what makes it instructive:
+</p>
+
+<div class="feature-grid">
+  <div class="feature-card">
+    <div class="icon">🎯</div>
+    <h4>Multi-pass NLP</h4>
+    <p>Combining synonyms + exact match + fuzzy matching creates a robust extractor far more resilient than any single strategy alone.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🌲</div>
+    <h4>Probabilistic Output</h4>
+    <p>Using <code>predict_proba</code> over <code>predict</code> unlocks confidence scores and the possibility of showing multiple candidate diseases.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🔄</div>
+    <h4>Iterative Refinement</h4>
+    <p>Making an initial prediction, then asking targeted follow-up questions mirrors real clinical reasoning elegantly.</p>
+  </div>
+  <div class="feature-card">
+    <div class="icon">📦</div>
+    <h4>Separation of Concerns</h4>
+    <p>Knowledge (CSVs), ML model, NLP, and UX are cleanly separated — each can be upgraded independently.</p>
+  </div>
+</div>
+
+<blockquote>
+  Building healthcare AI responsibly means being honest about what your model can and cannot do. A confidence score of 87% still means a 13% chance of being wrong — and in medicine, that matters enormously.
+</blockquote>
+
+
+<div class="divider">· · ·</div>
+
+<!-- CONCLUSION -->
+<h2>Conclusion</h2>
+
+<p>
+  We've built something genuinely useful from a modest stack of Python libraries. Starting from raw CSV symptom data, we trained a Random Forest that can distinguish between 41 different diseases. We layered a three-pass NLP engine on top so users can speak naturally. We added a guided conversational flow that mimics clinical reasoning. And we wrapped it all in a clean chatbot interface that delivers actionable, empathetic output.
+</p>
+<p>
+  The total core logic? Under 150 lines of Python. That's the beauty of building with the right abstractions.
+</p>
+<p>
+  If you found this breakdown helpful, the next logical step is to give the chatbot a real web interface using <strong>FastAPI + React</strong>, or to replace the rule-based NLP with a proper clinical NER model. Both would make compelling follow-up articles.
+</p>
+<p>
+  <em>Got questions or want to share your own build? Drop a comment below — I read every one.</em>
+</p>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="tag-footer">
+    <span>Python</span><span>Machine Learning</span><span>Healthcare</span>
+    <span>Random Forest</span><span>NLP</span><span>Scikit-learn</span>
+    <span>Chatbot</span><span>AI</span>
+  </div>
+  <p class="clap-hint">If this article helped you, consider giving it a clap 👏 — it helps others find it too.</p>
+</div>
+
+</body>
+</html>
